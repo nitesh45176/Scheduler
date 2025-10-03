@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api", // change when deploying
+   baseURL: import.meta.env.VITE_API_URL,
+   withCredentials: true
 });
 
 // Get slots for a week
@@ -14,8 +15,8 @@ export const createSlot = (slotData) =>
 
 // Update slot (exception)
 export const updateSlot = (slotId, data) =>
-  API.put(`/slots/${slotId}/exception`, data);  // ✅ added /exception
+  API.put(`/slots/${slotId}/exception`, data);  
 
 // Delete slot for specific date
 export const deleteSlotForDate = (slotId, date) =>
-  API.delete(`/slots/${slotId}/exception`, { params: { date } });  // ✅ added /exception
+  API.delete(`/slots/${slotId}/exception`, { params: { date } });  
