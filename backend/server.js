@@ -8,25 +8,31 @@ dotenv.config();
 
 const app = express();
 
-// CORS config
+const allowedOrigins = [
+  "https://scheduler.vercel.app",
+  "https://scheduler-git-main-nitesh45176s-projects.vercel.app"
+];
+
 app.use(cors({
-  origin: [
-    "https://scheduler.vercel.app",
-    "https://scheduler-git-main-nitesh45176s-projects.vercel.app"
-  ],
+  origin: function(origin, callback){
+    if(!origin) return callback(null, true); // allow Postman / server-to-server
+    if(allowedOrigins.includes(origin)){
+      return callback(null, true);
+    }
+    console.warn('Blocked origin:', origin);
+    return callback(new Error('Not allowed by CORS'), false);
+  },
   credentials: true
 }));
 
 app.use(express.json());
 
-// Correct route mounting
+// Correct route
 app.use('/slots', slotRoutes);
 
-// DB connection
 connectDB().then(() => console.log("✅ DB connected")).catch(err => console.error(err));
 
-app.get('/', (req, res) => res.send('Backend is running'));
+app.get('/', (req,res) => res.send('Backend is running'));
 
-// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
