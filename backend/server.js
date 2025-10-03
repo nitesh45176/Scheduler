@@ -9,7 +9,7 @@ dotenv.config();
 const app = express();
 
 const allowedOrigins = [
-  "https://scheduler.vercel.app",
+  "https://scheduler-b1p5.vercel.app",
   "https://scheduler-git-main-nitesh45176s-projects.vercel.app"
 ];
 
