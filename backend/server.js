@@ -9,10 +9,23 @@ dotenv.config();
 const app = express();
 
 // CORS config
+const allowedOrigins = [
+  "https://scheduler.vercel.app",
+  "https://scheduler-git-main-nitesh45176s-projects.vercel.app"
+];
+
 app.use(cors({
-  origin: 'https://scheduler.vercel.app',
-  credentials: true,
+  origin: function(origin, callback){
+    if(!origin) return callback(null, true); // allow non-browser requests like Postman
+    if(allowedOrigins.indexOf(origin) === -1){
+      const msg = `The CORS policy for this site does not allow access from the specified Origin.`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true
 }));
+
 
 app.use(express.json());
 
