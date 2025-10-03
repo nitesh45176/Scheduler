@@ -16,18 +16,17 @@ export const createSlot = async (req, res) => {
 // Get slots for a week
 export const getWeekSlots = async (req, res) => {
   try {
-    //The user will give start date
     const start = req.query.start;
     if (!start) return res.status(400).json({ error: "start query required" });
 
     const startDate = new Date(start);
-    const dates = [...Array(7)].map((_, i) => {   // Generates 7 days(whole week) starting from startDate
+    const dates = [...Array(7)].map((_, i) => {
       const d = new Date(startDate);
       d.setDate(startDate.getDate() + i);
-      return d.toISOString().slice(0, 10);       //convert date format into YYYY-DD-MM
+      return d.toISOString().slice(0, 10);
     });
 
-    const weekdays = dates.map((d) => new Date(d).getDay());     //sun,mon........
+    const weekdays = dates.map((d) => new Date(d).getDay());
     const recurring = await RecurringSlot.find({ weekday: { $in: weekdays } }).lean();
     const exceptions = await SlotException.find({ date: { $in: dates } }).lean();
 
@@ -36,7 +35,7 @@ export const getWeekSlots = async (req, res) => {
       let slots = recurring
         .filter((r) => r.weekday === dayIndex)
         .map((r) => ({
-          recurringSlotId: r._id,
+          recurringSlotId: String(r._id),  // ✅ MUST be String(r._id)
           start_time: r.start_time,
           end_time: r.end_time,
           source: "recurring",
@@ -44,7 +43,7 @@ export const getWeekSlots = async (req, res) => {
 
       const dayExceptions = exceptions.filter((e) => e.date === date);
       for (const ex of dayExceptions) {
-        const idx = slots.findIndex((s) => String(s.recurringSlotId) === String(ex.recurringSlotId));
+        const idx = slots.findIndex((s) => s.recurringSlotId === String(ex.recurringSlotId));
         if (ex.type === "deleted" && idx !== -1) {
           slots.splice(idx, 1);
         } else if (ex.type === "override") {
@@ -54,7 +53,7 @@ export const getWeekSlots = async (req, res) => {
             slots[idx].exception = true;
           } else {
             slots.push({
-              recurringSlotId: ex.recurringSlotId,
+              recurringSlotId: String(ex.recurringSlotId),  // ✅ MUST be String()
               start_time: ex.start_time,
               end_time: ex.end_time,
               exception: true,
