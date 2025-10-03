@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from './configs/db.js';
-import slotRoutes from './routes/slot.Routes.js'; // adjust path if needed
+import slotRoutes from '../backend/routes/slot.Routes.js'; // adjust path if needed
 
 dotenv.config();
 
