@@ -17,18 +17,30 @@ export const createSlot = async (req, res) => {
 export const getWeekSlots = async (req, res) => {
   try {
     const start = req.query.start;
+    console.log("Query start:", start);
     if (!start) return res.status(400).json({ error: "start query required" });
 
     const startDate = new Date(start);
+        if (isNaN(startDate)) {
+      console.error("Invalid start date:", start);
+      return res.status(400).json({ error: "Invalid start date" });
+    }
     const dates = [...Array(7)].map((_, i) => {
       const d = new Date(startDate);
       d.setDate(startDate.getDate() + i);
       return d.toISOString().slice(0, 10);
     });
+   
+     console.log("Week dates:", dates);
 
     const weekdays = dates.map((d) => new Date(d).getDay());
+       console.log("Weekday indices:", weekdays);
     const recurring = await RecurringSlot.find({ weekday: { $in: weekdays } }).lean();
     const exceptions = await SlotException.find({ date: { $in: dates } }).lean();
+
+    
+    console.log("Recurring slots:", recurring);
+    console.log("Exceptions:", exceptions);
 
     const result = dates.map((date) => {
       const dayIndex = new Date(date).getDay();
